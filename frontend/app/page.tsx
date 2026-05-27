@@ -46,11 +46,11 @@ export default function LandingPage() {
           <nav className="hidden md:flex items-center gap-8 text-xs font-semibold text-slate-400 uppercase tracking-wider">
             <a href="#features" className="hover:text-teal-400 transition-colors">Features</a>
             <Link href="/fraud-prevention" className="hover:text-teal-400 transition-colors">Fraud Prevention</Link>
-            <Link href="/about" className="hover:text-teal-400 transition-colors">About</Link>
+            <Link href="/about" className="hover:text-teal-400 transition-colors">About US</Link>
             <Link href="/contact" className="hover:text-teal-400 transition-colors">Contact</Link>
             <Link href="/auth/login" className="hover:text-teal-400 transition-colors">Portals</Link>
           </nav>
-
+               
           <Link
             href="/auth/login"
             className="px-5 py-2.5 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-slate-950 rounded-xl font-bold text-xs flex items-center gap-1 cursor-pointer transition-all active:scale-95 shadow-md shadow-teal-500/10 hover:shadow-teal-500/20"
