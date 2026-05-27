@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: claimshield-api
+    env: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npx prisma db push && node dist/index.js
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: FRONTEND_URL
+        sync: false
+      - key: DEMO_MODE
+        value: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        value: medical-records
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+
+databases:
+  - name: claimshield-db
+    plan: free
+    databaseName: claimshield
+    user: claimshield

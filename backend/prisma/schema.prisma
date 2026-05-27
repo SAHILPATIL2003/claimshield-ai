@@ -1,0 +1,191 @@
+// ============================================================================
+// ClaimShield AI - Database Schema (Prisma)
+// Healthcare Record Verification & Insurance Fraud Prevention
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ── User Roles ──────────────────────────────────────────────────────────────
+enum Role {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+// ── Verification Status ─────────────────────────────────────────────────────
+enum VerificationStatus {
+  PENDING
+  VERIFIED
+  FLAGGED
+  REJECTED
+}
+
+// ── Claim Status ────────────────────────────────────────────────────────────
+enum ClaimStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  FLAGGED
+}
+
+// ── Users ───────────────────────────────────────────────────────────────────
+model User {
+  id          String   @id @default(uuid())
+  firebaseUid String?  @unique
+  role        Role     @default(PATIENT)
+  mobileNumber String  @unique
+  fullName    String
+  email       String?
+  avatar      String?
+  hospitalId  String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  hospital         Hospital?       @relation("HospitalStaff", fields: [hospitalId], references: [id])
+  medicalRecords   MedicalRecord[] @relation("PatientRecords")
+  uploadedRecords  MedicalRecord[] @relation("UploadedBy")
+  doctorNotes      DoctorNote[]
+  auditLogs        AuditLog[]
+  insuranceClaims  InsuranceClaim[] @relation("PatientClaims")
+  reviewedClaims   InsuranceClaim[] @relation("ReviewedBy")
+  adminHospitals   Hospital[]       @relation("HospitalAdmin")
+
+  @@index([mobileNumber])
+  @@index([role])
+  @@map("users")
+}
+
+// ── Medical Records ─────────────────────────────────────────────────────────
+model MedicalRecord {
+  id                 String             @id @default(uuid())
+  patientId          String
+  uploadedById       String
+  fileName           String
+  fileType           String
+  fileUrl            String
+  fileSize           Int
+  blockchainHash     String
+  txId               String?            @unique
+  aiSummary          String?            @db.Text
+  ocrText            String?            @db.Text
+  fraudScore         Float              @default(0)
+  isDuplicate        Boolean            @default(false)
+  verificationStatus VerificationStatus @default(PENDING)
+  recordType         String?            // e.g., "blood_test", "xray", "prescription", "discharge_summary"
+  createdAt          DateTime           @default(now())
+
+  patient        User              @relation("PatientRecords", fields: [patientId], references: [id])
+  uploadedBy     User              @relation("UploadedBy", fields: [uploadedById], references: [id])
+  doctorNotes    DoctorNote[]
+  insuranceClaim InsuranceClaim[]
+  blockchainBlock BlockchainBlock[]
+
+  @@index([patientId])
+  @@index([blockchainHash])
+  @@index([verificationStatus])
+  @@map("medical_records")
+}
+
+// ── Doctor Notes ────────────────────────────────────────────────────────────
+model DoctorNote {
+  id        String   @id @default(uuid())
+  recordId  String
+  doctorId  String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+
+  record MedicalRecord @relation(fields: [recordId], references: [id], onDelete: Cascade)
+  doctor User          @relation(fields: [doctorId], references: [id])
+
+  @@index([recordId])
+  @@map("doctor_notes")
+}
+
+// ── Audit Logs ──────────────────────────────────────────────────────────────
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  details   String?  @db.Text
+  ipAddress String?
+  userAgent String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ── Insurance Claims ────────────────────────────────────────────────────────
+model InsuranceClaim {
+  id                 String      @id @default(uuid())
+  patientId          String
+  recordId           String?
+  claimAmount        Float
+  fraudScore         Float       @default(0)
+  verificationStatus ClaimStatus @default(PENDING)
+  reviewedById       String?
+  notes              String?     @db.Text
+  policyNumber       String?
+  insurerName        String?
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+
+  patient    User           @relation("PatientClaims", fields: [patientId], references: [id])
+  record     MedicalRecord? @relation(fields: [recordId], references: [id])
+  reviewedBy User?          @relation("ReviewedBy", fields: [reviewedById], references: [id])
+
+  @@index([patientId])
+  @@index([verificationStatus])
+  @@map("insurance_claims")
+}
+
+// ── Hospitals ───────────────────────────────────────────────────────────────
+model Hospital {
+  id        String   @id @default(uuid())
+  name      String
+  address   String?
+  phone     String?
+  email     String?
+  adminId   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+
+  admin User?  @relation("HospitalAdmin", fields: [adminId], references: [id])
+  staff User[] @relation("HospitalStaff")
+
+  @@map("hospitals")
+}
+
+// ── Blockchain Blocks ───────────────────────────────────────────────────────
+model BlockchainBlock {
+  id           String   @id @default(uuid())
+  index        Int      @unique
+  timestamp    DateTime
+  recordId     String?
+  fileHash     String
+  uploadedBy   String?
+  action       String
+  previousHash String
+  hash         String   @unique
+  nonce        Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  record MedicalRecord? @relation(fields: [recordId], references: [id])
+
+  @@index([index])
+  @@index([hash])
+  @@map("blockchain_blocks")
+}

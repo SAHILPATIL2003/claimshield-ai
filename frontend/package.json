@@ -1,0 +1,37 @@
+{
+  "name": "claimshield-ai-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "firebase": "^11.0.2",
+    "framer-motion": "^11.12.0",
+    "lucide-react": "^0.462.0",
+    "next": "^15.0.3",
+    "next-themes": "^0.4.3",
+    "qrcode.react": "^4.1.0",
+    "react": "^19.0.0-rc-66855b9609-20241106",
+    "react-dom": "^19.0.0-rc-66855b9609-20241106",
+    "react-dropzone": "^14.3.5",
+    "recharts": "^2.13.3",
+    "sonner": "^1.7.0",
+    "tailwind-merge": "^2.5.4",
+    "zustand": "^5.0.1"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.4.20",
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.15",
+    "typescript": "^5.7.2"
+  }
+}
