@@ -47,7 +47,7 @@ export default function LandingPage() {
             <a href="#features" className="hover:text-teal-400 transition-colors">Features</a>
             <Link href="/fraud-prevention" className="hover:text-teal-400 transition-colors">Fraud Prevention</Link>
             <Link href="/about" className="hover:text-teal-400 transition-colors">About US</Link>
-            <Link href="/contact" className="hover:text-teal-400 transition-colors">Contact</Link>
+            <Link href="/contact" className="hover:text-teal-400 transition-colors">Contact US</Link>
             <Link href="/auth/login" className="hover:text-teal-400 transition-colors">Portals</Link>
           </nav>
                
